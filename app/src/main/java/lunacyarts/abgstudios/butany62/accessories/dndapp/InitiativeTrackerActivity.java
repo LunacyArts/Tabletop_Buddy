@@ -1,45 +1,33 @@
 package lunacyarts.abgstudios.butany62.accessories.dndapp;
 
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
+import android.support.annotation.IdRes;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.PopupMenu;
 import android.text.InputType;
-import android.text.method.TransformationMethod;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.View.OnClickListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class InitiativeTrackerActivity extends AppCompatActivity{
 
+    //region Initializing Variables
     //An int the Options Menu can use to identify when one hits the delete button.
     private static final int MENU_ITEM_DELETE = R.id.delete;
     //An int the Options Menu can use to identify when one hits the rearrange button.
@@ -70,21 +58,28 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
     TableLayout initTrays;
     //A variable that represents the title tray at the top of the table.
     TableRow initTopTray;
+    //A variables for the IDs of the Popup buttons.
+    @IdRes int addInitAcceptButtonID;
+    @IdRes int addInitCancelButtonID;
+    @IdRes int changeInitAcceptButtonID;
+    @IdRes int changeInitCancelButtonID;
+    //endregion
 
-    //When the activity is created, this code runs.
+    //region When the activity is created, this code runs.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //Auto generated. Not sure what it does.
+        //region Auto generated. Not sure what it does.
         super.onCreate(savedInstanceState);
-        //Sets the View to be shown.
-        setContentView(R.layout.activity_initiative_tracker);
-        //Auto generated.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //endregion
+
+        //Sets the View to be shown.
+        setContentView(R.layout.activity_initiative_tracker);
 
         //Defining the sorted list to have the highest number appear first and the lowest number appear last.
-        initOrder = new TreeMap(Collections.reverseOrder());
+        initOrder = new TreeMap<>(Collections.reverseOrder());
 
         //Finds the Initiatives TableLayout and defines that to the variable.
         initTrays = (TableLayout) findViewById(R.id.Initiatives);
@@ -95,19 +90,29 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
         //Finds the Next Init FloatingActionButton and defines that to the variable.
         nextInit = (FloatingActionButton) findViewById(R.id.nextInit);
 
-        //Creates the Popup Layouts.
-        addInitPopupLayout = createPopupMenuLayout(LinearLayout.VERTICAL, Gravity.CENTER_HORIZONTAL, Color.WHITE);
-        changeInitPopupLayout = createPopupMenuLayout(LinearLayout.VERTICAL, Gravity.CENTER_HORIZONTAL, Color.WHITE);
+        //region Creates the Popup Layouts.
+        addInitPopupLayout = createPopupMenuLayout();
+        changeInitPopupLayout = createPopupMenuLayout();
+        //endregion
 
-        //Creates the Popups.
+        //region Creates the Popups.
         addInitPopup = new PopupWindow(addInitPopupLayout, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         changeInitPopup = new PopupWindow(changeInitPopupLayout, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        //endregion
 
-        //Sets the content to be viewed as the Popup Layouts previously defined.
+        //region Sets the content to be viewed as the Popup Layouts previously defined.
         addInitPopup.setContentView(addInitPopupLayout);
         changeInitPopup.setContentView(changeInitPopupLayout);
+        //endregion
 
-        //Creates the fields to type in for the Add Init Popup and adds them to the Layout.
+        //region Defines the IDs by generating a new one.
+        addInitAcceptButtonID = View.generateViewId();
+        addInitCancelButtonID = View.generateViewId();
+        changeInitAcceptButtonID = View.generateViewId();
+        changeInitCancelButtonID = View.generateViewId();
+        //endregion
+
+        //region Creates the fields to type in for the Add Init Popup and adds them to the Layout.
         final EditText addInitInitField = createPopupField("Init", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitInitField);
         final EditText addInitNameField = createPopupField("Player Name", InputType.TYPE_CLASS_TEXT); addInitPopupLayout.addView(addInitNameField);
         final EditText addInitAcField = createPopupField("AC", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitAcField);
@@ -115,59 +120,44 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
         final EditText addInitFortField = createPopupField("Fort", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitFortField);
         final EditText addInitReflexField = createPopupField("Reflex", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitReflexField);
         final EditText addInitWillField = createPopupField("Will", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitWillField);
+        //endregion
 
-        //Creates the fields to type in for the Change Init Popup and adds them to the Layout.
+        //region Creates the fields to type in for the Change Init Popup and adds them to the Layout.
         final EditText changeInitInitField = createPopupField("Init (leave blank to unchange)", InputType.TYPE_CLASS_NUMBER);
         changeInitPopupLayout.addView(changeInitInitField);
         final EditText changeInitPlaceField = createPopupField("Place (50 default; leave blank for deault)", InputType.TYPE_CLASS_NUMBER);
         changeInitPopupLayout.addView(changeInitPlaceField);
+        //endregion
 
-
-        LinearLayout buttonsLayout = new LinearLayout(this);
-        buttonsLayout.setOrientation(LinearLayout.HORIZONTAL);
-        buttonsLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-        addInitAcceptButton = new Button(this);
-        addInitAcceptButton.setText("Submit");
-        addInitAcceptButton.setGravity(Gravity.CENTER_HORIZONTAL);
-        addInitAcceptButton.setId(View.generateViewId());
-        buttonsLayout.addView(addInitAcceptButton);
-        addInitCancelButton = new Button(this);
-        addInitCancelButton.setText("Cancel");
-        addInitCancelButton.setGravity(Gravity.CENTER_HORIZONTAL);
-        addInitCancelButton.setId(View.generateViewId());
-        buttonsLayout.addView(addInitCancelButton);
-        addInitPopupLayout.addView(buttonsLayout);
-
-        LinearLayout buttonsLayout2 = new LinearLayout(this);
-        buttonsLayout2.setOrientation(LinearLayout.HORIZONTAL);
-        buttonsLayout2.setGravity(Gravity.CENTER_HORIZONTAL);
-        changeInitAcceptButton = new Button(this);
-        changeInitAcceptButton.setText("Submit");
-        changeInitAcceptButton.setGravity(Gravity.CENTER_HORIZONTAL);
-        changeInitAcceptButton.setId(View.generateViewId());
-        buttonsLayout2.addView(changeInitAcceptButton);
-        changeInitCancelButton = new Button(this);
-        changeInitCancelButton.setText("Cancel");
-        changeInitCancelButton.setGravity(Gravity.CENTER_HORIZONTAL);
-        changeInitCancelButton.setId(View.generateViewId());
-        buttonsLayout2.addView(changeInitCancelButton);
+        //region Creates the layout for the buttons area and adds it to the Popup Layouts.
+        LinearLayout addInitButtonsLayout = createPopupButtonsLayout(addInitAcceptButtonID, addInitCancelButtonID);
+        addInitPopupLayout.addView(addInitButtonsLayout);
+        LinearLayout buttonsLayout2 = createPopupButtonsLayout(changeInitAcceptButtonID, changeInitCancelButtonID);
         changeInitPopupLayout.addView(buttonsLayout2);
+        //endregion
+
+        //region Sets what the addInit Button does when pressed.
 
         addInit.setOnClickListener(new Button.OnClickListener()
 
         {
             @Override
             public void onClick(View v) {
+                //Brings up the AddInit Popup.
                 addInitPopup.showAsDropDown(addInit, 0, 0);
                 addInitPopup.setFocusable(true); addInitPopup.update();
             }
         });
-        addInitAcceptButton.setOnClickListener(new Button.OnClickListener()
+        //endregion
+
+        //region Finds the addInitAcceptButton by its ID and sets what it will do when pressed.
+        findViewById(addInitAcceptButtonID).setOnClickListener(new Button.OnClickListener()
 
         {
             @Override
             public void onClick(View v) {
 
+                //Initiates the variables needed.
                 int initText = 0;
                 String nameText = "";
                 int acText = 0;
@@ -176,30 +166,20 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
                 int save2Text = 0;
                 int save3Text = 0;
 
-                if (!addInitInitField.getText().toString().matches("")) {
-                    initText = Integer.parseInt(addInitInitField.getText().toString());
-                }
-                if (!addInitNameField.getText().toString().matches("")) {
-                    nameText = addInitNameField.getText().toString();
-                }
-                if (!addInitAcField.getText().toString().matches("")) {
-                    acText = Integer.parseInt(addInitAcField.getText().toString());
-                }
-                if (!addInitDexField.getText().toString().matches("")) {
-                    dexText = Integer.parseInt(addInitDexField.getText().toString());
-                }
-                if (!addInitFortField.getText().toString().matches("")) {
-                    save1Text = Integer.parseInt(addInitFortField.getText().toString());
-                }
-                if (!addInitReflexField.getText().toString().matches("")) {
-                    save2Text = Integer.parseInt(addInitReflexField.getText().toString());
-                }
-                if (!addInitWillField.getText().toString().matches("")) {
-                    save3Text = Integer.parseInt(addInitWillField.getText().toString());
-                }
+                //Defines the variables, but only if the field isn't blank. (Crash prevention.)
+                if (!addInitInitField.getText().toString().matches("")) { initText = Integer.parseInt(addInitInitField.getText().toString()); }
+                if (!addInitNameField.getText().toString().matches("")) { nameText = addInitNameField.getText().toString(); }
+                if (!addInitAcField.getText().toString().matches("")) { acText = Integer.parseInt(addInitAcField.getText().toString()); }
+                if (!addInitDexField.getText().toString().matches("")) { dexText = Integer.parseInt(addInitDexField.getText().toString()); }
+                if (!addInitFortField.getText().toString().matches("")) { save1Text = Integer.parseInt(addInitFortField.getText().toString()); }
+                if (!addInitReflexField.getText().toString().matches("")) { save2Text = Integer.parseInt(addInitReflexField.getText().toString()); }
+                if (!addInitWillField.getText().toString().matches("")) { save3Text = Integer.parseInt(addInitWillField.getText().toString()); }
 
+                //Creates a temporary InitTrays that includes the variables previously defined.
                 InitTrays temp = new InitTrays(initText, nameText, acText, dexText, save1Text, save2Text, save3Text);
 
+                //Error prevention. If one of these variables is below 10, it adds in a '0' before it so it doesnt go before other variables.
+                //Example: 8 would go before 63, so add a '0' to it and now 63 goes before 08.
                 String init0 = "";
                 if (temp.getInitiative() < 10) {
                     init0 = "0";
@@ -212,13 +192,21 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
                 if (temp.getPlace() < 10) {
                     place0 = "0";
                 }
+
+                //String to identify what initiative order this person goes in.
+                //Example: Init:13 Place:50 Dex:4 = 135004 <- init number to be sorted by.
                 String tempNum = init0 + String.valueOf(temp.getInitiative()) + place0 + String.valueOf(temp.getPlace()) + dex0 + String.valueOf(temp.getDex());
 
+                //Only puts the person there if there is not already another person in that initiative spot.
                 if (!initOrder.containsKey(tempNum)) {
+                    //Places the person at that initiative order with all of their stats.
                     initOrder.put(tempNum, temp);
+                    //If they are the only person in the initiative order, the program sets it as selected.
                     if (initOrder.size() == 1)
                         initOrder.get(initOrder.firstKey()).setSelected(true);
+                    //Refreshes the visuals.
                     refreshTrays();
+                    //Resets the fields back to blank.
                     addInitInitField.setText("");
                     addInitNameField.setText("");
                     addInitAcField.setText("");
@@ -226,19 +214,25 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
                     addInitFortField.setText("");
                     addInitReflexField.setText("");
                     addInitWillField.setText("");
+                    //Ends the Popup.
                     addInitPopup.dismiss();
                 }
 
             }
-        });
-        addInitCancelButton.setOnClickListener(new Button.OnClickListener()
+        }); //endregion
+
+        //region Sets what the addInitCancelButton does when pressed.
+        findViewById(addInitCancelButtonID).setOnClickListener(new Button.OnClickListener()
 
         {
             @Override
             public void onClick(View v) {
+                //Does nothing and dismisses the window.
                 addInitPopup.dismiss();
             }
-        });
+        });//endregion
+
+        //Sets what the nextInit Button does when pressed and references
         nextInit.setOnClickListener(new Button.OnClickListener()
 
         {
@@ -247,48 +241,57 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
                 nextInit();
             }
         });
-        changeInitAcceptButton.setOnClickListener(new Button.OnClickListener()
+
+        //region Sets what the changeInitAcceptButton does when pressed.
+        findViewById(changeInitAcceptButtonID).setOnClickListener(new Button.OnClickListener()
 
         {
             @Override
             public void onClick(View v) {
+                //Gets each of the InitTrays in initOrder.
                 for (String i : initOrder.keySet()) {
-                    if (initOrder.get(i).isSelected()) {
-                        if (changeInitInitField.getText().toString().matches("")) {
-                        } else {
-                            initOrder.get(i).setInitiative(Integer.parseInt(changeInitInitField.getText().toString()));
-                        }
-                        if (changeInitPlaceField.getText().toString().matches("")) {
-                        } else {
-                            initOrder.get(i).setPlace(Integer.parseInt(changeInitPlaceField.getText().toString()));
-                        }
+                    InitTrays currentInit = initOrder.get(i);
+                    //Finds the one that is selected.
+                    if (currentInit.isSelected()) {
+                        //Defines the variables, but only if the field isn't blank. (Crash prevention.)
+                        if (!changeInitInitField.getText().toString().matches("")) {
+                            currentInit.setInitiative(Integer.parseInt(changeInitInitField.getText().toString())); }
+                        if (!changeInitPlaceField.getText().toString().matches("")) {
+                            currentInit.setPlace(Integer.parseInt(changeInitPlaceField.getText().toString())); }
+
+                        //Error prevention. If one of these variables is below 10, it adds in a '0' before it so it doesnt go before other variables.
                         String init0 = "";
-                        if (initOrder.get(i).getInitiative() < 10) { init0 = "0"; }
+                        if (currentInit.getInitiative() < 10) { init0 = "0"; }
                         String dex0 = "";
-                        if (initOrder.get(i).getDex() < 10) { dex0 = "0"; }
+                        if (currentInit.getDex() < 10) { dex0 = "0"; }
                         String place0 = "";
-                        if (initOrder.get(i).getPlace() < 10) { place0 = "0"; }
-                        String tempNum = init0 + String.valueOf(initOrder.get(i).getInitiative()) + place0 + String.valueOf(initOrder.get(i).getPlace()) + dex0 + String.valueOf(initOrder.get(i).getDex());
-                        InitTrays temp = initOrder.get(i);
+                        if (currentInit.getPlace() < 10) { place0 = "0"; }
+                        String tempNum = init0 + String.valueOf(currentInit.getInitiative()) + place0 + String.valueOf(currentInit.getPlace())
+                                + dex0 + String.valueOf(currentInit.getDex());
+                        //Removes the InitTrays from the list to be added back in at the right number.
                         initOrder.remove(i);
-                        initOrder.put(tempNum, temp);
+                        initOrder.put(tempNum, currentInit);
                         break;
                     }
                 }
                 refreshTrays();
                 changeInitPopup.dismiss();
             }
-        });
-        changeInitCancelButton.setOnClickListener(new Button.OnClickListener()
+        });//endregion
+
+        //region Sets what the changeInitCancelButton does when pressed.
+        findViewById(changeInitCancelButtonID).setOnClickListener(new Button.OnClickListener()
 
         {
             @Override
             public void onClick(View v) {
                 changeInitPopup.dismiss();
             }
-        });
+        });//endregion
     }
+    //endregion
 
+    //region
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -311,11 +314,28 @@ public class InitiativeTrackerActivity extends AppCompatActivity{
         }
     }
 
-    private LinearLayout createPopupMenuLayout(int orientation, int gravity, int bgColor) {
+    private Button createPopupButton(String text, @IdRes int id) {
+        Button popupButton = new Button(this);
+        popupButton.setText(text);
+        popupButton.setGravity(Gravity.CENTER_HORIZONTAL);
+        popupButton.setId(id);
+        return popupButton;
+    }
+
+    private LinearLayout createPopupButtonsLayout(@IdRes int acceptButtonID, @IdRes int cancelButtonID) {
+        LinearLayout buttonsTray = new LinearLayout(this);
+        buttonsTray.setOrientation(LinearLayout.HORIZONTAL);
+        buttonsTray.setGravity(Gravity.CENTER_HORIZONTAL);
+        Button acceptButton = createPopupButton("Submit", acceptButtonID); buttonsTray.addView(acceptButton);
+        Button cancelButton = createPopupButton("Cancel", cancelButtonID); buttonsTray.addView(cancelButton);
+        return buttonsTray;
+    }
+
+    private LinearLayout createPopupMenuLayout() {
         LinearLayout PopupLayout = new LinearLayout(this);
-        PopupLayout.setOrientation(orientation);
-        PopupLayout.setGravity(gravity);
-        PopupLayout.setBackgroundColor(bgColor);
+        PopupLayout.setOrientation(LinearLayout.VERTICAL);
+        PopupLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+        PopupLayout.setBackgroundColor(Color.WHITE);
         return PopupLayout;
     }
 
