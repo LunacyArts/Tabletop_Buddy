@@ -1,0 +1,4 @@
+﻿  Source.cpp
+i:\dev work\github\tabletop_buddy\tabletop_buddy_server\tabletop_buddy_server\character.h(1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Tabletop_Buddy_Server.vcxproj -> I:\Dev Work\GitHub\Tabletop_Buddy\Tabletop_Buddy_Server\Debug\Tabletop_Buddy_Server.exe
+  Tabletop_Buddy_Server.vcxproj -> I:\Dev Work\GitHub\Tabletop_Buddy\Tabletop_Buddy_Server\Debug\Tabletop_Buddy_Server.pdb (Partial PDB)
