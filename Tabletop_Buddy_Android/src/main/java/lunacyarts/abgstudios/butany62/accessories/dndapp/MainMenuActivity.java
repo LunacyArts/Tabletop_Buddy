@@ -135,7 +135,7 @@ public class MainMenuActivity extends AppCompatActivity
         TextView initColumn = setTableColumnText(R.string.init_text, R.drawable.drawable_cell_shape_top); topRow.addView(initColumn);
         TextView nameColumn = setTableColumnText(R.string.name_text, R.drawable.drawable_cell_shape_top); topRow.addView(nameColumn);
         TextView acColumn = setTableColumnText(R.string.ac_text, R.drawable.drawable_cell_shape_top); topRow.addView(acColumn);
-        TextView savesColumn = setTableColumnText(R.string.savesText, R.drawable.drawable_cell_shape_top); topRow.addView(savesColumn);
+        TextView savesColumn = setTableColumnText("Saves", R.drawable.drawable_cell_shape_top); topRow.addView(savesColumn);
         initiativeList.addView(topRow); //endregion
 
         // endregion
