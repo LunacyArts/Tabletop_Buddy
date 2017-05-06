@@ -2,22 +2,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item android:title="Home"
-            android:id="@+id/MenuHome" />
-        <item android:title="Initiative Tracker"
+        <item android:title="@string/menuHomeName"
+            android:id="@+id/MenuHome"
+            android:checked="true" />
+        <item android:title="@string/menuInitiative_trackerName"
             android:id="@+id/MenuInitTracker" />
+        <item android:title="@string/menuHealth_trackerName"
+            android:id="@+id/MenuHealth" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/menuCommunicateName">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="@string/menuShareName" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="@string/menuSendName" />
         </menu>
     </item>
 

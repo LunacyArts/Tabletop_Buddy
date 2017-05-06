@@ -6,8 +6,4 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
-    <item android:title="Delete Selected"
-        android:id="@+id/delete" />
-    <item android:title="Change Selected"
-        android:id="@+id/rearrange" />
 </menu>

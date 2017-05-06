@@ -18,15 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".InitiativeTrackerActivity"
-            android:label="@string/title_activity_initiative_tracker"
-            android:parentActivityName=".MainMenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="lunacyarts.abgstudios.butany62.accessories.dndapp.MainMenuActivity" />
-        </activity>
     </application>
 
 </manifest>
