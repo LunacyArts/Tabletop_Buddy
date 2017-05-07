@@ -306,7 +306,7 @@ public class MainMenuActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 if (nonHealth > 0) {
-                    health -= 1;
+                    nonHealth -= 1;
                     refreshHealth(nonHealthTracker, nonHealth);
                 }
             }
