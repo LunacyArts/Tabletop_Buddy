@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
 import android.view.Gravity;
@@ -58,18 +59,28 @@ public class MainMenuActivity extends AppCompatActivity
     LinearLayout initiativeTrackerContent;
     LinearLayout healthTrackerContent;
 
+    //
+    TextView healthTracker;
+    TextView nonHealthTracker;
+    int health;
+    int healthMAX;
+    int nonHealth;
+
     //IDs to be used to identify the settings menu items.
     private static final String MENU_ITEM_DELETE = "Delete Selected";
     private static final String MENU_ITEM_REARRANGE = "Hold Selected";
     private static final String MENU_ITEM_ADD = "Add Player";
     private static final String MENU_ITEM_SETTINGS = "Settings";
+    private static final String MENU_ITEM_CHANGE_MAX = "Edit Max Health";
     private static final int MENU_LIST_HOLD = View.generateViewId();
 
     //The layout of the popup that adds in an initiative tray.
     LinearLayout addInitPopupLayout;
+    LinearLayout changeMaxHealthPopupLayout;
 
     //The popup that adds in an initiative tray.
     PopupWindow addInitPopup;
+    PopupWindow changeMaxHealthPopup;
 
     //A sorted list of the initiative trays.
     SortedMap<String, InitTrays> initOrder;
@@ -78,6 +89,8 @@ public class MainMenuActivity extends AppCompatActivity
     @IdRes int addInitAcceptButtonID;
     @IdRes int addInitCancelButtonID;
     @IdRes int nextButtonID;
+    @IdRes int changeMaxHealthAcceptButtonID;
+    @IdRes int changeMaxHealthCancelButtonID;
 
     //The placeholder for the content of the main menu.
     RelativeLayout mainMenuContent;
@@ -90,6 +103,7 @@ public class MainMenuActivity extends AppCompatActivity
     EditText addInitFortField;
     EditText addInitReflexField;
     EditText addInitWillField;
+    EditText changeHealthField;
 
     FloatingActionButton nextButton;
 
@@ -193,9 +207,135 @@ public class MainMenuActivity extends AppCompatActivity
         healthTrackerContent.setOrientation(LinearLayout.VERTICAL);
         healthTrackerContent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        ImageView heartImage = new ImageView(this); heartImage.setImageResource(R.drawable.heart);
-        ImageView nonHeartImage = new ImageView(this); nonHeartImage.setImageResource(R.drawable.nonheart);
+        RelativeLayout lethalHealthTray = new RelativeLayout(this);
 
+        ImageView heartImage = new ImageView(this); heartImage.setImageResource(R.drawable.heart);
+        RelativeLayout.LayoutParams heartParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        heartParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        heartImage.setLayoutParams(heartParams);
+        lethalHealthTray.addView(heartImage);
+
+        health = 0;
+        healthMAX = 100;
+
+        healthTracker = new TextView(this);
+        healthTracker.setText(String.valueOf(health));
+        healthTracker.setTextSize(30);
+        RelativeLayout.LayoutParams healthTrackerParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        healthTrackerParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        healthTrackerParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        healthTracker.setLayoutParams(healthTrackerParams);
+        lethalHealthTray.addView(healthTracker);
+
+        FloatingActionButton healthTrackerMinusButton = new FloatingActionButton(this);
+        healthTrackerMinusButton.setSize(FloatingActionButton.SIZE_NORMAL);
+        healthTrackerMinusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
+        healthTrackerMinusButton.setClickable(true);
+        healthTrackerMinusButton.setImageResource(R.drawable.dialog_full_holo_dark_9);
+        healthTrackerMinusButton.setId(View.generateViewId());
+        RelativeLayout.LayoutParams minusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        minusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+        minusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        healthTrackerMinusButton.setLayoutParams(minusButtonParams);
+        lethalHealthTray.addView(healthTrackerMinusButton);
+
+        applyListener(lethalHealthTray.findViewById(healthTrackerMinusButton.getId()), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (health > 0) {
+                    health -= 1;
+                    refreshHealth(healthTracker, health);
+                }
+            }
+        });
+
+        FloatingActionButton healthTrackerPlusButton = new FloatingActionButton(this);
+        healthTrackerPlusButton.setSize(FloatingActionButton.SIZE_NORMAL);
+        healthTrackerPlusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
+        healthTrackerPlusButton.setClickable(true);
+        healthTrackerPlusButton.setImageResource(R.drawable.dialog_full_holo_dark_plus);
+        healthTrackerPlusButton.setId(View.generateViewId());
+        RelativeLayout.LayoutParams plusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        plusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+        plusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        healthTrackerMinusButton.setLayoutParams(plusButtonParams);
+        lethalHealthTray.addView(healthTrackerPlusButton);
+
+        applyListener(lethalHealthTray.findViewById(healthTrackerPlusButton.getId()), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (health < healthMAX) {
+                    health += 1;
+                    refreshHealth(healthTracker, health);
+                }
+            }
+        });
+
+        RelativeLayout nonLethalHealthTray = new RelativeLayout(this);
+
+        ImageView nonHeartImage = new ImageView(this); nonHeartImage.setImageResource(R.drawable.nonheart);
+        RelativeLayout.LayoutParams nonheartParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        nonheartParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        nonHeartImage.setLayoutParams(nonheartParams);
+        nonLethalHealthTray.addView(nonHeartImage);
+
+        nonHealth = 0;
+
+        nonHealthTracker = new TextView(this);
+        nonHealthTracker.setText(String.valueOf(nonHealth));
+        nonHealthTracker.setTextSize(30);
+        RelativeLayout.LayoutParams nonHealthTrackerParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        nonHealthTrackerParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        nonHealthTrackerParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        nonHealthTracker.setLayoutParams(nonHealthTrackerParams);
+        nonLethalHealthTray.addView(nonHealthTracker);
+
+        FloatingActionButton nonHealthTrackerMinusButton = new FloatingActionButton(this);
+        nonHealthTrackerMinusButton.setSize(FloatingActionButton.SIZE_NORMAL);
+        nonHealthTrackerMinusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
+        nonHealthTrackerMinusButton.setClickable(true);
+        nonHealthTrackerMinusButton.setImageResource(R.drawable.dialog_full_holo_dark_9);
+        nonHealthTrackerMinusButton.setId(View.generateViewId());
+        RelativeLayout.LayoutParams nonMinusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        nonMinusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+        nonMinusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        nonHealthTrackerMinusButton.setLayoutParams(nonMinusButtonParams);
+        nonLethalHealthTray.addView(nonHealthTrackerMinusButton);
+
+        applyListener(nonLethalHealthTray.findViewById(nonHealthTrackerMinusButton.getId()), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (nonHealth > 0) {
+                    nonHealth -= 1;
+                    refreshHealth(nonHealthTracker, nonHealth);
+                }
+            }
+        });
+
+        FloatingActionButton nonHealthTrackerPlusButton = new FloatingActionButton(this);
+        nonHealthTrackerPlusButton.setSize(FloatingActionButton.SIZE_NORMAL);
+        nonHealthTrackerPlusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
+        nonHealthTrackerPlusButton.setClickable(true);
+        nonHealthTrackerPlusButton.setImageResource(R.drawable.dialog_full_holo_dark_plus);
+        nonHealthTrackerPlusButton.setId(View.generateViewId());
+        RelativeLayout.LayoutParams nonPlusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        nonPlusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+        nonPlusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        nonHealthTrackerPlusButton.setLayoutParams(nonPlusButtonParams);
+        nonLethalHealthTray.addView(nonHealthTrackerPlusButton);
+
+        applyListener(nonLethalHealthTray.findViewById(nonHealthTrackerPlusButton.getId()), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (nonHealth < healthMAX) {
+                    nonHealth += 1;
+                    refreshHealth(nonHealthTracker, nonHealth);
+                }
+            }
+        });
+
+        healthTrackerContent.addView(lethalHealthTray);
+        healthTrackerContent.addView(nonLethalHealthTray);
         //endregion
 
         //region Creates the Popup.
@@ -229,6 +369,20 @@ public class MainMenuActivity extends AppCompatActivity
         addInitPopupLayout.addView(addInitButtonsLayout);
         //endregion
 
+        changeMaxHealthPopup = new PopupWindow(addInitPopupLayout, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+
+        changeMaxHealthPopupLayout = createPopupMenuLayout();
+
+        changeHealthField = createPopupField("Leave blank to keep at last value", InputType.TYPE_CLASS_NUMBER); changeMaxHealthPopupLayout.addView(changeHealthField);
+
+        changeMaxHealthPopup.setContentView(changeMaxHealthPopupLayout);
+
+        changeMaxHealthAcceptButtonID = View.generateViewId();
+        changeMaxHealthCancelButtonID = View.generateViewId();
+
+        LinearLayout changeMaxHealthButtonsLayout = createPopupButtonsLayout(changeMaxHealthAcceptButtonID, changeMaxHealthCancelButtonID);
+        changeMaxHealthPopupLayout.addView(changeMaxHealthButtonsLayout);
+
         //endregion
 
         //region Finds the RelativeLayout that the Content will be put into.
@@ -240,6 +394,10 @@ public class MainMenuActivity extends AppCompatActivity
         //region Defining the sorted list to have the highest number appear first and the lowest number appear last.
         initOrder = new TreeMap<>(Collections.reverseOrder()); //endregion
     } //endregion
+
+    private void refreshHealth(TextView tracker, int health) {
+        tracker.setText(String.valueOf(health));
+    }
 
     //region Auto Generated. Not sure what it does.
     @Override
@@ -293,10 +451,13 @@ public class MainMenuActivity extends AppCompatActivity
                 if (initOrder.get(i).isHeld())
                     unholdPlayers.add(MENU_LIST_HOLD, View.NO_ID, j, initOrder.get(i).getName()); j++;
             }
-        }
-        if (menuSelected.equals("MAINMENU")) {
+        } else if (menuSelected.equals("MAINMENU")) {
             menu.clear();
             menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_SETTINGS);
+        } else if (menuSelected.equals("HEALTHMENU")) {
+            menu.clear();
+            menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_CHANGE_MAX);
+            menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_SETTINGS);
         }
         return true;
     } //endregion
@@ -320,6 +481,9 @@ public class MainMenuActivity extends AppCompatActivity
             return true;
         } else if (item.getTitle() == MENU_ITEM_ADD) {
             addPlayer();
+            return true;
+        } else if (item.getTitle() == MENU_ITEM_CHANGE_MAX) {
+            changeMaxHealth();
             return true;
         } else {
             return false;
@@ -352,7 +516,7 @@ public class MainMenuActivity extends AppCompatActivity
     private void changeToHealthTracker() {
         mainMenuContent.removeAllViews();
 
-
+        mainMenuContent.addView(healthTrackerContent);
 
         menuSelected = "HEALTHMENU";
     }
@@ -653,5 +817,26 @@ public class MainMenuActivity extends AppCompatActivity
                 addInitPopup.dismiss();
             }
         });//endregion
+    }
+
+    private void changeMaxHealth() {
+        changeMaxHealthPopup.showAsDropDown(toolbar, 0, 0);
+        changeMaxHealthPopup.setFocusable(true); changeMaxHealthPopup.update();
+
+        applyListener(changeMaxHealthPopupLayout.findViewById(changeMaxHealthAcceptButtonID), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                healthMAX = Integer.parseInt(changeHealthField.getText().toString());
+
+                changeMaxHealthPopup.dismiss();
+            }
+        });
+
+        applyListener(changeMaxHealthPopupLayout.findViewById(changeMaxHealthCancelButtonID), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeMaxHealthPopup.dismiss();
+            }
+        });
     }
 }
