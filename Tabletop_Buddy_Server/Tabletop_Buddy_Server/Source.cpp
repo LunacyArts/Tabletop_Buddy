@@ -1,17 +1,18 @@
-#include <iostream>
-#include <thread>
 #include "Character.h"
-#include <vector>
 #include "Lobby.h"
 #include "Server.h"
 
-int main() {
+#include <iostream>
+#include <thread>
+#include <vector>
+using namespace std;
+
+
+int main(int argc, char *argv[]) {
 	
-	std::cout << "Starting Server";
-	server = server()
-
-		//this is a comment to test git
-
+	std::cout << "Starting Server\n";
+	Server server = Server();
 	system("pause");
+	return 0;
 
 }

@@ -1,26 +1,32 @@
-#ifndef Character_h
-#define Character_h
+#pragma once
+#define Character_H
 
-class character {
+#include <string>
+using namespace std;
+
+class Character {
 	private:
 		int initiative;
 		std::string name;
+
 	public:
-		character(std::string n, int i) {
+		Character(std::string n, int i) {
 			initiative = i;
 			name = n;
 		}
+
 		std::string getname() {
 			return name;
 		}
+
 		int getInitiative() {
 			return initiative;
 		}
+
 		void deleteChar() {
-			character::~character();
+			Character::~Character();
 		}
-		~character() {}
+
+		~Character() {}
 	protected:
 };
-
-#endif
