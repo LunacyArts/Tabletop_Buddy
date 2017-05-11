@@ -77,8 +77,6 @@ Tabletop_Buddy_Server/[Bb]in/
 Tabletop_Buddy_Server/[Oo]bj/
 Tabletop_Buddy_Server/[Ll]og/
 
-Tabletop_Buddy_Server/Tabletop_Buddy_Server/Tabletop_Buddy_Server.vcxproj
-Tabletop_Buddy_Server/Tabletop_Buddy_Server/Tabletop_Buddy_Server.vcxproj.filters
 
 # Visual Studio 2015 cache/options directory
 Tabletop_Buddy_Server/.vs/
