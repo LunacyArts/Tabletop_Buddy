@@ -8,7 +8,6 @@ class Character {
 	private:
 		int initiative;
 		std::string name;
-
 	public:
 		Character(std::string n, int i) {
 			initiative = i;
