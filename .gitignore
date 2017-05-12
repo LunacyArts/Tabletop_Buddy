@@ -1,3 +1,6 @@
+#android .apk files
+Tabletop_Buddy_Android/*.apk
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
