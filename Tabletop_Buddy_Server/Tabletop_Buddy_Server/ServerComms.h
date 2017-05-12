@@ -96,7 +96,8 @@ void ServerComms::start_server(){
 	{
 		listener
 			.open()
-			.then([]() {TRACE(L"\nstarting to listen\n"); });
+			.then([]() {TRACE(L"\nstarting to listen\n"); })
+			.wait();
 			
 
 		

@@ -343,3 +343,5 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+Tabletop_Buddy_Server/Tabletop_Buddy_Server/Tabletop_Buddy_Server.vcxproj
+Tabletop_Buddy_Server/Tabletop_Buddy_Server/Tabletop_Buddy_Server.vcxproj.filters

@@ -32,5 +32,11 @@
     <ClInclude Include="ServerComms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DBConnect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
