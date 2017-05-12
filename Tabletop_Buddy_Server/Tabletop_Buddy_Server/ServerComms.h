@@ -11,6 +11,7 @@ using namespace web::http::experimental::listener;
 #include <set>
 #include <string>
 using namespace std;
+typedef std::wstring string_t;
 
 #define TRACE(msg)            wcout << msg
 #define TRACE_ACTION(a, k, v) wcout << a << L" (" << k << L", " << v << L")\n"
@@ -55,14 +56,18 @@ ServerComms::ServerComms(const http::uri& url) : listener(http_listener(url))
 }
 
 
-int numResponses = 0;
-
-
 
 void ServerComms::handle_get(http_request request)
 {
-	TRACE(L"\nhandle GET : " << numResponses << "\n");
-	numResponses++;
+	TRACE(L"\nhandle GET\n");
+	web::uri path = request.relative_uri();
+	
+	//fucking bs equality checks wtf microsoft
+	if (path.path() == uri(L"/test/").path()) {
+		cout << "Got /test uri" << endl;
+		cout << utility::conversions::to_utf8string(path.path()) << endl;
+	}
+	
 
 	request.reply(status_codes::OK, "value returned GET");
 }
@@ -71,8 +76,34 @@ void ServerComms::handle_get(http_request request)
 void ServerComms::handle_post(http_request request)
 {
 	TRACE("\nhandle POST\n");
+	web::uri path = request.relative_uri();
+	
 
+	if (path.path() == uri(L"/v1/auth/").path()) {
+		cout << "Got auth uri" << endl;
+		cout << utility::conversions::to_utf8string(path.path()) << endl;
 
+		http_headers headers = request.headers();
+		string_t requser = utility::conversions::to_string_t("BuddyUser");
+		string_t reqpass = utility::conversions::to_string_t("BuddyPass");
+		if (headers.has(requser) && headers.has(reqpass)) {
+			cout << "Found username and password headers" << endl;
+			
+			string_t username = headers[requser];
+			string_t password = headers[reqpass];
+
+			cout << "Username: " << utility::conversions::to_utf8string(username) <<
+				" Password: " << utility::conversions::to_utf8string(password) << endl;
+		}
+		else {
+			cout << "Couldn't find username and password headers" << endl;
+		}
+}
+
+	//utility::string_t suri = request.relative_uri().to_string();
+	//string normalstring = utility::conversions::to_utf8string(suri);
+	//cout << normalstring << endl;
+	
 	request.reply(status_codes::OK, "value returned POST");
 
 }

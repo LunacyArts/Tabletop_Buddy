@@ -22,15 +22,12 @@ class Server {
 	public:
 		//Server boot
 		Server() {
-			ServerComms sc(L"http://192.168.254.200:9000/");
+			ServerComms sc(L"http://localhost:9000/");
 			sc.start_server();
 			std::cout << "Server started.\n";
 			//Set up random server seed
 			srand(time(NULL));
-			while (1) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-				std::cout << "Main thread still going" << endl;
-			}
+			while (1) {}
 		}
 
 		//Lobby creation, requires a name and gm_id to create a lobby, generates a 6 digit pin using get_key(), then pushes it into vector turn_order
