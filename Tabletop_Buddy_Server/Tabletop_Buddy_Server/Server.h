@@ -3,11 +3,17 @@
 
 #include "Lobby.h"
 #include "Character.h"
+#include "ServerComms.h"
 
 #include <vector>
 #include <iostream>
 #include <string>
+<<<<<<< HEAD
 #include <time.h>
+=======
+#include <chrono>
+#include <thread>
+>>>>>>> origin/master
 using namespace std;
 
 class Server {
@@ -19,9 +25,18 @@ class Server {
 	public:
 		//Server boot
 		Server() {
+			ServerComms sc(L"http://192.168.254.200:9000/");
+			sc.start_server();
 			std::cout << "Server started.\n";
+<<<<<<< HEAD
 			//Set up random server seed
 			srand(time(NULL));
+=======
+			while (1) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+				std::cout << "Main thread still going" << endl;
+			}
+>>>>>>> origin/master
 		}
 
 		//Lobby creation, requires a name and gm_id to create a lobby, generates a 6 digit pin using get_key(), then pushes it into vector turn_order
