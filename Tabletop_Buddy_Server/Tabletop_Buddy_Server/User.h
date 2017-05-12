@@ -18,6 +18,5 @@ class User {
 			LName = ln;
 			UName = un;
 			Email = e;
-
 		}
 };
