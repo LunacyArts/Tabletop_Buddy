@@ -53,13 +53,12 @@ ServerComms::ServerComms(const http::uri& url) : listener(http_listener(url))
 		std::tr1::bind(&ServerComms::handle_delete,
 			this,
 			std::tr1::placeholders::_1));
-	
+	srand(time(NULL));
 }
 
 void gen_random(char *s, const int len) {
 	static const char alphanum[] =
 		"0123456789"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz";
 
 	for (int i = 0; i < len; ++i) {
@@ -129,6 +128,7 @@ void ServerComms::handle_post(http_request request)
 		json::value obj;
 		obj[L"session-id"] = json::value::string(utility::conversions::to_string_t(session_id));
 		request.reply(status_codes::OK, obj);
+		delete[] s;
 	}
 	else {
 		json::value obj;
