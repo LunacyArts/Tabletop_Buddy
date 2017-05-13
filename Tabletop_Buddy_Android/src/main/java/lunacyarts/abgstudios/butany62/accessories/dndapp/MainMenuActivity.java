@@ -6,13 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.SubMenu;
 import android.view.View;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -23,10 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.view.ViewGroup.LayoutParams;
@@ -37,7 +32,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -59,53 +53,29 @@ public class MainMenuActivity extends AppCompatActivity
     LinearLayout initiativeTrackerContent;
     LinearLayout healthTrackerContent;
 
-    //
-    TextView healthTracker;
-    TextView nonHealthTracker;
-    int health;
-    int healthMAX;
-    int nonHealth;
-
     //IDs to be used to identify the settings menu items.
-    private static final String MENU_ITEM_DELETE = "Delete Selected";
-    private static final String MENU_ITEM_REARRANGE = "Hold Selected";
     private static final String MENU_ITEM_ADD = "Add Player";
-    private static final String MENU_ITEM_SETTINGS = "Settings";
+    private static final String MENU_ITEM_REARRANGE = "Hold Selected";
+    private static final String MENU_ITEM_DELETE = "Delete Selected";
     private static final String MENU_ITEM_CHANGE_MAX = "Edit Max Health";
     private static final int MENU_LIST_HOLD = View.generateViewId();
-
-    //The layout of the popup that adds in an initiative tray.
-    LinearLayout addInitPopupLayout;
-    LinearLayout changeMaxHealthPopupLayout;
-
-    //The popup that adds in an initiative tray.
-    PopupWindow addInitPopup;
-    PopupWindow changeMaxHealthPopup;
+    private static final String MENU_ITEM_SETTINGS = "Settings";
 
     //A sorted list of the initiative trays.
     SortedMap<String, InitTrays> initOrder;
 
     //A variables for the IDs of the Popup buttons.
-    @IdRes int addInitAcceptButtonID;
-    @IdRes int addInitCancelButtonID;
     @IdRes int nextButtonID;
-    @IdRes int changeMaxHealthAcceptButtonID;
-    @IdRes int changeMaxHealthCancelButtonID;
 
     //The placeholder for the content of the main menu.
     RelativeLayout mainMenuContent;
 
-    //The fields to be placed in the AddInit popup.
-    EditText addInitInitField;
-    EditText addInitNameField;
-    EditText addInitAcField;
-    EditText addInitDexField;
-    EditText addInitFortField;
-    EditText addInitReflexField;
-    EditText addInitWillField;
-    EditText changeHealthField;
-
     FloatingActionButton nextButton;
+
+    PopupHelper addPlayerPopup;
+    PopupHelper changeMaxHealthPopup;
+
+    List<HealthTray> healthTrays;
 
     String menuSelected; //endregion
 
@@ -149,7 +119,7 @@ public class MainMenuActivity extends AppCompatActivity
         TextView initColumn = setTableColumnText(R.string.init_text, R.drawable.drawable_cell_shape_top); topRow.addView(initColumn);
         TextView nameColumn = setTableColumnText(R.string.name_text, R.drawable.drawable_cell_shape_top); topRow.addView(nameColumn);
         TextView acColumn = setTableColumnText(R.string.ac_text, R.drawable.drawable_cell_shape_top); topRow.addView(acColumn);
-        TextView savesColumn = setTableColumnText("Saves", R.drawable.drawable_cell_shape_top); topRow.addView(savesColumn);
+        TextView savesColumn = setTableColumnText(R.string.saves_text, R.drawable.drawable_cell_shape_top); topRow.addView(savesColumn);
         initiativeList.addView(topRow); //endregion
 
         // endregion
@@ -207,183 +177,97 @@ public class MainMenuActivity extends AppCompatActivity
         healthTrackerContent.setOrientation(LinearLayout.VERTICAL);
         healthTrackerContent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        RelativeLayout lethalHealthTray = new RelativeLayout(this);
+        healthTrays = new ArrayList<>();
+        healthTrays.add(new HealthTray(this));
+        healthTrackerContent.addView(healthTrays.get(0).getContent());
 
-        ImageView heartImage = new ImageView(this); heartImage.setImageResource(R.drawable.heart);
-        RelativeLayout.LayoutParams heartParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        heartParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        heartImage.setLayoutParams(heartParams);
-        lethalHealthTray.addView(heartImage);
+        addPlayerPopup = new PopupHelper(this);
+        addPlayerPopup.addPopupField("Init", InputType.TYPE_CLASS_NUMBER, this);
+        addPlayerPopup.addPopupField("Player Name", InputType.TYPE_CLASS_TEXT, this);
+        addPlayerPopup.addPopupField("AC", InputType.TYPE_CLASS_NUMBER, this);
+        addPlayerPopup.addPopupField("Dex Mod", InputType.TYPE_CLASS_NUMBER, this);
+        addPlayerPopup.addPopupField("Fort", InputType.TYPE_CLASS_NUMBER, this);
+        addPlayerPopup.addPopupField("Reflex", InputType.TYPE_CLASS_NUMBER, this);
+        addPlayerPopup.addPopupField("Will", InputType.TYPE_CLASS_NUMBER, this);
 
-        health = 0;
-        healthMAX = 100;
+        //region Tells what the accept Button does.
+        addPlayerPopup.setOnClickListenerAccept(new Button.OnClickListener()
 
-        healthTracker = new TextView(this);
-        healthTracker.setText(String.valueOf(health));
-        healthTracker.setTextSize(30);
-        RelativeLayout.LayoutParams healthTrackerParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        healthTrackerParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        healthTrackerParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        healthTracker.setLayoutParams(healthTrackerParams);
-        lethalHealthTray.addView(healthTracker);
-
-        FloatingActionButton healthTrackerMinusButton = new FloatingActionButton(this);
-        healthTrackerMinusButton.setSize(FloatingActionButton.SIZE_NORMAL);
-        healthTrackerMinusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
-        healthTrackerMinusButton.setClickable(true);
-        healthTrackerMinusButton.setImageResource(R.drawable.dialog_full_holo_dark_9);
-        healthTrackerMinusButton.setId(View.generateViewId());
-        RelativeLayout.LayoutParams minusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        minusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_START);
-        minusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        healthTrackerMinusButton.setLayoutParams(minusButtonParams);
-        lethalHealthTray.addView(healthTrackerMinusButton);
-
-        applyListener(lethalHealthTray.findViewById(healthTrackerMinusButton.getId()), new View.OnClickListener() {
+        {
             @Override
             public void onClick(View v) {
-                if (health > 0) {
-                    health -= 1;
-                    refreshHealth(healthTracker, health);
+
+                //Initiates the variables needed.
+                int initText = 0;
+                String nameText = "";
+                int acText = 0;
+                int dexText = 0;
+                int save1Text = 0;
+                int save2Text = 0;
+                int save3Text = 0;
+
+                //Defines the variables, but only if the field isn't blank. (Crash prevention.)
+                if (!addPlayerPopup.getField(0).getText().toString().matches("")) {
+                    initText = Integer.parseInt(addPlayerPopup.getField(0).getText().toString());
                 }
+                if (!addPlayerPopup.getField(1).getText().toString().matches("")) {
+                    nameText = addPlayerPopup.getField(1).getText().toString();
+                }
+                if (!addPlayerPopup.getField(2).getText().toString().matches("")) {
+                    acText = Integer.parseInt(addPlayerPopup.getField(2).getText().toString());
+                }
+                if (!addPlayerPopup.getField(3).getText().toString().matches("")) {
+                    dexText = Integer.parseInt(addPlayerPopup.getField(3).getText().toString());
+                }
+                if (!addPlayerPopup.getField(4).getText().toString().matches("")) {
+                    save1Text = Integer.parseInt(addPlayerPopup.getField(4).getText().toString());
+                }
+                if (!addPlayerPopup.getField(5).getText().toString().matches("")) {
+                    save2Text = Integer.parseInt(addPlayerPopup.getField(5).getText().toString());
+                }
+                if (!addPlayerPopup.getField(6).getText().toString().matches("")) {
+                    save3Text = Integer.parseInt(addPlayerPopup.getField(6).getText().toString());
+                }
+
+                //Creates a temporary InitTrays that includes the variables previously defined.
+                InitTrays temp = new InitTrays(initText, nameText, acText, dexText, save1Text, save2Text, save3Text);
+
+                //Only puts the person there if there is not already another person in that initiative spot.
+                if (!initOrder.containsKey(temp.getListKey())) {
+                    //Places the person at that initiative order with all of their stats.
+                    initOrder.put(temp.getListKey(), temp);
+                    //If they are the only person in the initiative order, the program sets it as selected.
+                    if (initOrder.size() == 1)
+                        initOrder.get(initOrder.firstKey()).setSelected(true);
+                    //Refreshes the visuals.
+                    refreshTrays();
+                    //Resets the fields back to blank.
+                    addPlayerPopup.getField(0).setText("");
+                    addPlayerPopup.getField(1).setText("");
+                    addPlayerPopup.getField(2).setText("");
+                    addPlayerPopup.getField(3).setText("");
+                    addPlayerPopup.getField(4).setText("");
+                    addPlayerPopup.getField(5).setText("");
+                    addPlayerPopup.getField(6).setText("");
+                    //Ends the Popup.
+                    addPlayerPopup.getPopupWindow().dismiss();
+                }
+
             }
-        });
+        }); //endregion
 
-        FloatingActionButton healthTrackerPlusButton = new FloatingActionButton(this);
-        healthTrackerPlusButton.setSize(FloatingActionButton.SIZE_NORMAL);
-        healthTrackerPlusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
-        healthTrackerPlusButton.setClickable(true);
-        healthTrackerPlusButton.setImageResource(R.drawable.dialog_full_holo_dark_plus);
-        healthTrackerPlusButton.setId(View.generateViewId());
-        RelativeLayout.LayoutParams plusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        plusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-        plusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        healthTrackerMinusButton.setLayoutParams(plusButtonParams);
-        lethalHealthTray.addView(healthTrackerPlusButton);
+        changeMaxHealthPopup = new PopupHelper(this);
+        changeMaxHealthPopup.addPopupField("Leave blank to keep at last value", InputType.TYPE_CLASS_NUMBER, this);
 
-        applyListener(lethalHealthTray.findViewById(healthTrackerPlusButton.getId()), new View.OnClickListener() {
+        //region Tells what the accept Button does.
+        changeMaxHealthPopup.setOnClickListenerAccept(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (health < healthMAX) {
-                    health += 1;
-                    refreshHealth(healthTracker, health);
-                }
+                healthTrays.get(0).setMaxHealth(Integer.parseInt(changeMaxHealthPopup.getField(0).getText().toString()));
+
+                changeMaxHealthPopup.getPopupWindow().dismiss();
             }
-        });
-
-        RelativeLayout nonLethalHealthTray = new RelativeLayout(this);
-
-        ImageView nonHeartImage = new ImageView(this); nonHeartImage.setImageResource(R.drawable.nonheart);
-        RelativeLayout.LayoutParams nonheartParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        nonheartParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        nonHeartImage.setLayoutParams(nonheartParams);
-        nonLethalHealthTray.addView(nonHeartImage);
-
-        nonHealth = 0;
-
-        nonHealthTracker = new TextView(this);
-        nonHealthTracker.setText(String.valueOf(nonHealth));
-        nonHealthTracker.setTextSize(30);
-        RelativeLayout.LayoutParams nonHealthTrackerParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        nonHealthTrackerParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        nonHealthTrackerParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        nonHealthTracker.setLayoutParams(nonHealthTrackerParams);
-        nonLethalHealthTray.addView(nonHealthTracker);
-
-        FloatingActionButton nonHealthTrackerMinusButton = new FloatingActionButton(this);
-        nonHealthTrackerMinusButton.setSize(FloatingActionButton.SIZE_NORMAL);
-        nonHealthTrackerMinusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
-        nonHealthTrackerMinusButton.setClickable(true);
-        nonHealthTrackerMinusButton.setImageResource(R.drawable.dialog_full_holo_dark_9);
-        nonHealthTrackerMinusButton.setId(View.generateViewId());
-        RelativeLayout.LayoutParams nonMinusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        nonMinusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_START);
-        nonMinusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        nonHealthTrackerMinusButton.setLayoutParams(nonMinusButtonParams);
-        nonLethalHealthTray.addView(nonHealthTrackerMinusButton);
-
-        applyListener(nonLethalHealthTray.findViewById(nonHealthTrackerMinusButton.getId()), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (nonHealth > 0) {
-                    nonHealth -= 1;
-                    refreshHealth(nonHealthTracker, nonHealth);
-                }
-            }
-        });
-
-        FloatingActionButton nonHealthTrackerPlusButton = new FloatingActionButton(this);
-        nonHealthTrackerPlusButton.setSize(FloatingActionButton.SIZE_NORMAL);
-        nonHealthTrackerPlusButton.setBackgroundTintList(ColorStateList.valueOf(Color.argb(255, 0, 153, 204)));
-        nonHealthTrackerPlusButton.setClickable(true);
-        nonHealthTrackerPlusButton.setImageResource(R.drawable.dialog_full_holo_dark_plus);
-        nonHealthTrackerPlusButton.setId(View.generateViewId());
-        RelativeLayout.LayoutParams nonPlusButtonParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        nonPlusButtonParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-        nonPlusButtonParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        nonHealthTrackerPlusButton.setLayoutParams(nonPlusButtonParams);
-        nonLethalHealthTray.addView(nonHealthTrackerPlusButton);
-
-        applyListener(nonLethalHealthTray.findViewById(nonHealthTrackerPlusButton.getId()), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (nonHealth < healthMAX) {
-                    nonHealth += 1;
-                    refreshHealth(nonHealthTracker, nonHealth);
-                }
-            }
-        });
-
-        healthTrackerContent.addView(lethalHealthTray);
-        healthTrackerContent.addView(nonLethalHealthTray);
-        //endregion
-
-        //region Creates the Popup.
-        addInitPopup = new PopupWindow(addInitPopupLayout, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
-        //region Creates the Popup Layout.
-        addInitPopupLayout = createPopupMenuLayout();
-
-        //region Creates the fields to type in for the Add Init Popup and adds them to the Layout.
-        addInitInitField = createPopupField("Init", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitInitField);
-        addInitNameField = createPopupField("Player Name", InputType.TYPE_CLASS_TEXT); addInitPopupLayout.addView(addInitNameField);
-        addInitAcField = createPopupField("AC", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitAcField);
-        addInitDexField = createPopupField("Dex Mod", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitDexField);
-        addInitFortField = createPopupField("Fort", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitFortField);
-        addInitReflexField = createPopupField("Reflex", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitReflexField);
-        addInitWillField = createPopupField("Will", InputType.TYPE_CLASS_NUMBER); addInitPopupLayout.addView(addInitWillField);
-        //endregion
-
-        //region Sets the content to be viewed as the Popup Layout.
-        addInitPopup.setContentView(addInitPopupLayout); //endregion
-
-        //endregion
-
-        //region Defines the Popup Button IDs by generating a new one.
-        addInitAcceptButtonID = View.generateViewId();
-        addInitCancelButtonID = View.generateViewId();
-        //endregion
-
-        //region Creates the layout for the buttons area and adds it to the Popup Layout.
-        LinearLayout addInitButtonsLayout = createPopupButtonsLayout(addInitAcceptButtonID, addInitCancelButtonID);
-        addInitPopupLayout.addView(addInitButtonsLayout);
-        //endregion
-
-        changeMaxHealthPopup = new PopupWindow(addInitPopupLayout, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
-        changeMaxHealthPopupLayout = createPopupMenuLayout();
-
-        changeHealthField = createPopupField("Leave blank to keep at last value", InputType.TYPE_CLASS_NUMBER); changeMaxHealthPopupLayout.addView(changeHealthField);
-
-        changeMaxHealthPopup.setContentView(changeMaxHealthPopupLayout);
-
-        changeMaxHealthAcceptButtonID = View.generateViewId();
-        changeMaxHealthCancelButtonID = View.generateViewId();
-
-        LinearLayout changeMaxHealthButtonsLayout = createPopupButtonsLayout(changeMaxHealthAcceptButtonID, changeMaxHealthCancelButtonID);
-        changeMaxHealthPopupLayout.addView(changeMaxHealthButtonsLayout);
-
-        //endregion
+        }); //endregion
 
         //region Finds the RelativeLayout that the Content will be put into.
         mainMenuContent = (RelativeLayout) findViewById(R.id.content_main_menu); //endregion
@@ -394,10 +278,6 @@ public class MainMenuActivity extends AppCompatActivity
         //region Defining the sorted list to have the highest number appear first and the lowest number appear last.
         initOrder = new TreeMap<>(Collections.reverseOrder()); //endregion
     } //endregion
-
-    private void refreshHealth(TextView tracker, int health) {
-        tracker.setText(String.valueOf(health));
-    }
 
     //region Auto Generated. Not sure what it does.
     @Override
@@ -438,26 +318,31 @@ public class MainMenuActivity extends AppCompatActivity
     //region Tells the program what to do right before the Settings Menu is displayed.
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (menuSelected.equals("INITMENU")) {
-            menu.clear();
-            menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_ADD);
-            menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_REARRANGE);
-            menu.add(R.menu.main_menu, View.NO_ID, 2, MENU_ITEM_DELETE);
-            menu.addSubMenu(R.menu.main_menu, MENU_LIST_HOLD, 3, "Unhold Players");
-            menu.add(R.menu.main_menu, View.NO_ID, 4, MENU_ITEM_SETTINGS);
-            SubMenu unholdPlayers = menu.getItem(3).getSubMenu();
-            int j = 0;
-            for (String i : initOrder.keySet()) {
-                if (initOrder.get(i).isHeld())
-                    unholdPlayers.add(MENU_LIST_HOLD, View.NO_ID, j, initOrder.get(i).getName()); j++;
-            }
-        } else if (menuSelected.equals("MAINMENU")) {
-            menu.clear();
-            menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_SETTINGS);
-        } else if (menuSelected.equals("HEALTHMENU")) {
-            menu.clear();
-            menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_CHANGE_MAX);
-            menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_SETTINGS);
+        switch (menuSelected) {
+            case "INITMENU":
+                menu.clear();
+                menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_ADD);
+                menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_REARRANGE);
+                menu.add(R.menu.main_menu, View.NO_ID, 2, MENU_ITEM_DELETE);
+                menu.addSubMenu(R.menu.main_menu, MENU_LIST_HOLD, 3, "Unhold Players");
+                menu.add(R.menu.main_menu, View.NO_ID, 4, MENU_ITEM_SETTINGS);
+                SubMenu unholdPlayers = menu.getItem(3).getSubMenu();
+                int j = 0;
+                for (String i : initOrder.keySet()) {
+                    if (initOrder.get(i).isHeld())
+                        unholdPlayers.add(MENU_LIST_HOLD, View.NO_ID, j, initOrder.get(i).getName());
+                    j++;
+                }
+                break;
+            case "MAINMENU":
+                menu.clear();
+                menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_SETTINGS);
+                break;
+            case "HEALTHMENU":
+                menu.clear();
+                menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_CHANGE_MAX);
+                menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_SETTINGS);
+                break;
         }
         return true;
     } //endregion
@@ -480,10 +365,10 @@ public class MainMenuActivity extends AppCompatActivity
             holdInit();
             return true;
         } else if (item.getTitle() == MENU_ITEM_ADD) {
-            addPlayer();
+            addPlayerPopup.showPopupAsDropDown(toolbar);
             return true;
         } else if (item.getTitle() == MENU_ITEM_CHANGE_MAX) {
-            changeMaxHealth();
+            changeMaxHealthPopup.showPopupAsDropDown(toolbar);
             return true;
         } else {
             return false;
@@ -493,6 +378,7 @@ public class MainMenuActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -510,9 +396,22 @@ public class MainMenuActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
         return true;
     }
 
+    private void changeToMain() {
+        mainMenuContent.removeAllViews();
+
+        menuSelected = "MAINMENU";
+    }
+    private void changeToInitTracker() {
+        mainMenuContent.removeAllViews();
+        mainMenuContent.addView(initiativeTrackerContent);
+
+
+        menuSelected = "INITMENU";
+    }
     private void changeToHealthTracker() {
         mainMenuContent.removeAllViews();
 
@@ -532,7 +431,6 @@ public class MainMenuActivity extends AppCompatActivity
             child.setOnClickListener(listener);
         }
     }
-
     private static void applyListener(ViewGroup parent, Button.OnClickListener listener) {
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
@@ -544,20 +442,6 @@ public class MainMenuActivity extends AppCompatActivity
         }
     }
 
-    private void changeToInitTracker() {
-        mainMenuContent.removeAllViews();
-        mainMenuContent.addView(initiativeTrackerContent);
-
-
-        menuSelected = "INITMENU";
-    }
-
-    private void changeToMain() {
-        mainMenuContent.removeAllViews();
-
-        menuSelected = "MAINMENU";
-    }
-
     private TextView setTableColumnText(@StringRes int text, @DrawableRes int bgResource) {
         TextView Column = new TextView(this);
         Column.setPadding(5, 0, 5, 0);
@@ -566,50 +450,6 @@ public class MainMenuActivity extends AppCompatActivity
         Column.setText(text);
         Column.setTextSize(24);
         return Column;
-    }
-    private TextView setTableColumnText(String text, @DrawableRes int bgResource) {
-        TextView Column = new TextView(this);
-        Column.setPadding(5, 0, 5, 0);
-        Column.setBackgroundResource(bgResource);
-        Column.setGravity(Gravity.START);
-        Column.setText(text);
-        Column.setTextSize(24);
-        return Column;
-    }
-
-
-
-    private Button createPopupButton(String text, @IdRes int id) {
-        Button popupButton = new Button(this);
-        popupButton.setText(text);
-        popupButton.setGravity(Gravity.CENTER_HORIZONTAL);
-        popupButton.setId(id);
-        return popupButton;
-    }
-
-    private LinearLayout createPopupButtonsLayout(@IdRes int acceptButtonID, @IdRes int cancelButtonID) {
-        LinearLayout buttonsTray = new LinearLayout(this);
-        buttonsTray.setOrientation(LinearLayout.HORIZONTAL);
-        buttonsTray.setGravity(Gravity.CENTER_HORIZONTAL);
-        Button acceptButton = createPopupButton("Submit", acceptButtonID); buttonsTray.addView(acceptButton);
-        Button cancelButton = createPopupButton("Cancel", cancelButtonID); buttonsTray.addView(cancelButton);
-        return buttonsTray;
-    }
-
-    private LinearLayout createPopupMenuLayout() {
-        LinearLayout PopupLayout = new LinearLayout(this);
-        PopupLayout.setOrientation(LinearLayout.VERTICAL);
-        PopupLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-        PopupLayout.setBackgroundColor(Color.WHITE);
-        return PopupLayout;
-    }
-
-    private EditText createPopupField(String Hint, int inputType) {
-        final EditText Field = new EditText(this);
-        Field.setHint(Hint);
-        Field.setId(View.generateViewId());
-        Field.setInputType(inputType);
-        return Field;
     }
 
     private void holdInit() {
@@ -730,113 +570,7 @@ public class MainMenuActivity extends AppCompatActivity
     public void refreshTrays(){
         initiativeList.removeAllViews();
         initiativeList.addView(topRow);
-        for (final String i : initOrder.keySet()){
-
-            @DrawableRes int bg = initOrder.get(i).getBackgroundResource();
-
-            TableRow initTray = new TableRow(this);
-            TextView initView = setTableColumnText(String.valueOf(initOrder.get(i).getInitiative()), bg);
-            TextView nameView = setTableColumnText(initOrder.get(i).getName(), bg);
-            TextView acView = setTableColumnText(String.valueOf(initOrder.get(i).getAC()), bg);
-            TextView savesView = setTableColumnText(initOrder.get(i).getSaves(), bg);
-
-            initTray.addView(initView);
-            initTray.addView(nameView);
-            initTray.addView(acView);
-            initTray.addView(savesView);
-
-            initiativeList.addView(initTray);
-        }
-    }
-
-    public void addPlayer(){
-        //Brings up the AddInit Popup.
-        addInitPopup.showAsDropDown(toolbar, 0, 0);
-        addInitPopup.setFocusable(true); addInitPopup.update();
-
-        //region Finds the addInitAcceptButton by its ID and sets what it will do when pressed.
-
-        applyListener(addInitPopupLayout.findViewById(addInitAcceptButtonID), new Button.OnClickListener()
-
-        {
-            @Override
-            public void onClick(View v) {
-
-                //Initiates the variables needed.
-                int initText = 0;
-                String nameText = "";
-                int acText = 0;
-                int dexText = 0;
-                int save1Text = 0;
-                int save2Text = 0;
-                int save3Text = 0;
-
-                //Defines the variables, but only if the field isn't blank. (Crash prevention.)
-                if (!addInitInitField.getText().toString().matches("")) { initText = Integer.parseInt(addInitInitField.getText().toString()); }
-                if (!addInitNameField.getText().toString().matches("")) { nameText = addInitNameField.getText().toString(); }
-                if (!addInitAcField.getText().toString().matches("")) { acText = Integer.parseInt(addInitAcField.getText().toString()); }
-                if (!addInitDexField.getText().toString().matches("")) { dexText = Integer.parseInt(addInitDexField.getText().toString()); }
-                if (!addInitFortField.getText().toString().matches("")) { save1Text = Integer.parseInt(addInitFortField.getText().toString()); }
-                if (!addInitReflexField.getText().toString().matches("")) { save2Text = Integer.parseInt(addInitReflexField.getText().toString()); }
-                if (!addInitWillField.getText().toString().matches("")) { save3Text = Integer.parseInt(addInitWillField.getText().toString()); }
-
-                //Creates a temporary InitTrays that includes the variables previously defined.
-                InitTrays temp = new InitTrays(initText, nameText, acText, dexText, save1Text, save2Text, save3Text);
-
-                //Only puts the person there if there is not already another person in that initiative spot.
-                if (!initOrder.containsKey(temp.getListKey())) {
-                    //Places the person at that initiative order with all of their stats.
-                    initOrder.put(temp.getListKey(), temp);
-                    //If they are the only person in the initiative order, the program sets it as selected.
-                    if (initOrder.size() == 1)
-                        initOrder.get(initOrder.firstKey()).setSelected(true);
-                    //Refreshes the visuals.
-                    refreshTrays();
-                    //Resets the fields back to blank.
-                    addInitInitField.setText("");
-                    addInitNameField.setText("");
-                    addInitAcField.setText("");
-                    addInitDexField.setText("");
-                    addInitFortField.setText("");
-                    addInitReflexField.setText("");
-                    addInitWillField.setText("");
-                    //Ends the Popup.
-                    addInitPopup.dismiss();
-                }
-
-            }
-        }); //endregion
-
-        //region Sets what the addInitCancelButton does when pressed.
-        applyListener(addInitPopupLayout.findViewById(addInitCancelButtonID), new Button.OnClickListener()
-
-        {
-            @Override
-            public void onClick(View v) {
-                //Does nothing and dismisses the window.
-                addInitPopup.dismiss();
-            }
-        });//endregion
-    }
-
-    private void changeMaxHealth() {
-        changeMaxHealthPopup.showAsDropDown(toolbar, 0, 0);
-        changeMaxHealthPopup.setFocusable(true); changeMaxHealthPopup.update();
-
-        applyListener(changeMaxHealthPopupLayout.findViewById(changeMaxHealthAcceptButtonID), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                healthMAX = Integer.parseInt(changeHealthField.getText().toString());
-
-                changeMaxHealthPopup.dismiss();
-            }
-        });
-
-        applyListener(changeMaxHealthPopupLayout.findViewById(changeMaxHealthCancelButtonID), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMaxHealthPopup.dismiss();
-            }
-        });
+        for (final String i : initOrder.keySet())
+            initiativeList.addView(initOrder.get(i).refresh(this));
     }
 }

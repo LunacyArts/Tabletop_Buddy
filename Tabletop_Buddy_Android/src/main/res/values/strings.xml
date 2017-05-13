@@ -15,4 +15,5 @@
     <string name="menuCommunicateName">Communicate</string>
     <string name="menuShareName">Share</string>
     <string name="menuSendName">Send</string>
+    <string name="saves_text">Saves</string>
 </resources>
