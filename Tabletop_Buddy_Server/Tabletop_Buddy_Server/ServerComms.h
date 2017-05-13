@@ -53,8 +53,21 @@ ServerComms::ServerComms(const http::uri& url) : listener(http_listener(url))
 		std::tr1::bind(&ServerComms::handle_delete,
 			this,
 			std::tr1::placeholders::_1));
+	
 }
 
+void gen_random(char *s, const int len) {
+	static const char alphanum[] =
+		"0123456789"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz";
+
+	for (int i = 0; i < len; ++i) {
+		s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+	}
+
+	s[len] = 0;
+}
 
 
 void ServerComms::handle_get(http_request request)
@@ -77,6 +90,8 @@ void ServerComms::handle_post(http_request request)
 {
 	TRACE("\nhandle POST\n");
 	web::uri path = request.relative_uri();
+
+	bool login_ok = false;
 	
 
 	if (path.path() == uri(L"/v1/auth/").path()) {
@@ -84,8 +99,8 @@ void ServerComms::handle_post(http_request request)
 		cout << utility::conversions::to_utf8string(path.path()) << endl;
 
 		http_headers headers = request.headers();
-		string_t requser = utility::conversions::to_string_t("BuddyUser");
-		string_t reqpass = utility::conversions::to_string_t("BuddyPass");
+		string_t requser = U("BuddyUser");
+		string_t reqpass = U("BuddyPass");
 		if (headers.has(requser) && headers.has(reqpass)) {
 			cout << "Found username and password headers" << endl;
 			
@@ -94,6 +109,9 @@ void ServerComms::handle_post(http_request request)
 
 			cout << "Username: " << utility::conversions::to_utf8string(username) <<
 				" Password: " << utility::conversions::to_utf8string(password) << endl;
+
+			//someday, actually check
+			login_ok = true;
 		}
 		else {
 			cout << "Couldn't find username and password headers" << endl;
@@ -104,7 +122,19 @@ void ServerComms::handle_post(http_request request)
 	//string normalstring = utility::conversions::to_utf8string(suri);
 	//cout << normalstring << endl;
 	
-	request.reply(status_codes::OK, "value returned POST");
+	if (login_ok) {
+		char *s = new char[64];
+		gen_random(s, 64);
+		string session_id = string(s);
+		json::value obj;
+		obj[L"session-id"] = json::value::string(utility::conversions::to_string_t(session_id));
+		request.reply(status_codes::OK, obj);
+	}
+	else {
+		json::value obj;
+		obj[L"error"] = json::value::string(U("Invalid username or password"));
+		request.reply(status_codes::Unauthorized, obj);
+	}
 
 }
 
@@ -127,11 +157,8 @@ void ServerComms::start_server(){
 	{
 		listener
 			.open()
-			.then([]() {TRACE(L"\nstarting to listen\n"); })
+			.then([]() {TRACE(L"\nServer comms : now listening\n"); })
 			.wait();
-			
-
-		
 	}
 	catch (exception const & e)
 	{
