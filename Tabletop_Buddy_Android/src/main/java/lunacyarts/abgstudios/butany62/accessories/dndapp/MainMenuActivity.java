@@ -328,33 +328,6 @@ public class MainMenuActivity extends AppCompatActivity
     //region Tells the program what to do right before the Settings Menu is displayed.
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-<<<<<<< HEAD
-        switch (menuSelected) {
-            case "INITMENU":
-                menu.clear();
-                menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_ADD);
-                menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_REARRANGE);
-                menu.add(R.menu.main_menu, View.NO_ID, 2, MENU_ITEM_DELETE);
-                menu.addSubMenu(R.menu.main_menu, MENU_LIST_HOLD, 3, "Unhold Players");
-                menu.add(R.menu.main_menu, View.NO_ID, 4, MENU_ITEM_SETTINGS);
-                SubMenu unholdPlayers = menu.getItem(3).getSubMenu();
-                int j = 0;
-                for (String i : initOrder.keySet()) {
-                    if (initOrder.get(i).isHeld())
-                        unholdPlayers.add(MENU_LIST_HOLD, View.NO_ID, j, initOrder.get(i).getName());
-                    j++;
-                }
-                break;
-            case "MAINMENU":
-                menu.clear();
-                menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_SETTINGS);
-                break;
-            case "HEALTHMENU":
-                menu.clear();
-                menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_CHANGE_MAX);
-                menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_SETTINGS);
-                break;
-=======
 		//this is also usually xml. what are you using to generate this?
         if (menuSelected.equals("INITMENU")) {
             menu.clear();
@@ -376,7 +349,6 @@ public class MainMenuActivity extends AppCompatActivity
             menu.clear();
             menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_CHANGE_MAX);
             menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_SETTINGS);
->>>>>>> master
         }
         return true;
     } //endregion
