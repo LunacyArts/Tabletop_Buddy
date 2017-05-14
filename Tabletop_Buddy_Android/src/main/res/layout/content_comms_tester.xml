@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="lunacyarts.abgstudios.butany62.accessories.dndapp.CommsTester"
+    tools:showIn="@layout/activity_comms_tester">
+
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Username"
+        android:inputType="text"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <EditText
+        android:id="@+id/etPassword"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="59dp" />
+
+
+    <EditText
+        android:id="@+id/etUrl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="URL"
+        android:inputType="textUri"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="102dp" />
+
+
+    <Button
+        android:id="@+id/bAuth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Attempt auth"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="145dp" />
+</LinearLayout>

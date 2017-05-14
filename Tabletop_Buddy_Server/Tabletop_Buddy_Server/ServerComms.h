@@ -17,11 +17,6 @@ typedef std::wstring string_t;
 #define TRACE_ACTION(a, k, v) wcout << a << L" (" << k << L", " << v << L")\n"
 class ServerComms {
 	http_listener listener;
-<<<<<<< HEAD
-	const std::string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
-	int numChar = sizeof(digits) - 1;
-=======
->>>>>>> master
 	
 public:
 	ServerComms(const http::uri& url);
@@ -34,20 +29,7 @@ private:
 	void handle_put(http_request request);
 	void handle_post(http_request request);
 	void handle_delete(http_request request);
-<<<<<<< HEAD
-	std::string get_session_id() {
-		std::string id = "";
-		for (int i = 0; i < 6; i++) {
 
-			id = id + digits[rand() % numChar];
-		}
-	std:cout << "The ID is: " << id << "\n";
-		return id;
-	};
-=======
-	
-	
->>>>>>> master
 
 };
 
@@ -70,24 +52,9 @@ ServerComms::ServerComms(const http::uri& url) : listener(http_listener(url))
 		std::tr1::bind(&ServerComms::handle_delete,
 			this,
 			std::tr1::placeholders::_1));
-	srand(time(NULL));
+	
 }
 
-<<<<<<< HEAD
-=======
-void gen_random(char *s, const int len) {
-	static const char alphanum[] =
-		"0123456789"
-		"abcdefghijklmnopqrstuvwxyz";
-
-	for (int i = 0; i < len; ++i) {
-		s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-	}
-
-	s[len] = 0;
-}
-
->>>>>>> master
 
 void ServerComms::handle_get(http_request request)
 {
@@ -142,13 +109,13 @@ void ServerComms::handle_post(http_request request)
 	//cout << normalstring << endl;
 	
 	if (login_ok) {
-		char *s = new char[64];
-		gen_random(s, 64);
-		string session_id = string(s);
+		
+		
+		string session_id = "get-some-random-session-id-from-roger";
 		json::value obj;
 		obj[L"session-id"] = json::value::string(utility::conversions::to_string_t(session_id));
 		request.reply(status_codes::OK, obj);
-		delete[] s;
+		
 	}
 	else {
 		json::value obj;

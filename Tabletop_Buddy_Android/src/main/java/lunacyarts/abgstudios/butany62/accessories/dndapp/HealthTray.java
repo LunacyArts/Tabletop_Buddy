@@ -1,6 +1,7 @@
 package lunacyarts.abgstudios.butany62.accessories.dndapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.annotation.DrawableRes;
@@ -43,6 +44,13 @@ public class HealthTray {
         lethalTray.addView(heartImage);
         ImageView nonHeartImage = setHeart(context, R.drawable.nonheart);
         nonLethalTray.addView(nonHeartImage);
+        lethalTray.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(view.getContext(), CommsTester.class);
+                view.getContext().startActivity(i);
+            }
+        });
 
         health = 100;
         maxHealth = 100;
