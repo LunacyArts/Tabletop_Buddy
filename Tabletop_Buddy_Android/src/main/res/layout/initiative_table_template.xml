@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/initiative_table"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="1">
+
+    <TableRow
+        android:id="@+id/top_row"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/drawable_cell_shape_top"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text="@string/init_text"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/drawable_cell_shape_top"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text="@string/name_text"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/drawable_cell_shape_top"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text="@string/ac_text"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/drawable_cell_shape_top"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text="@string/saves_text"
+            android:textSize="24sp" />
+
+    </TableRow>
+</TableLayout>

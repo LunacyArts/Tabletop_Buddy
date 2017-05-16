@@ -2,9 +2,11 @@ package lunacyarts.abgstudios.butany62.accessories.dndapp;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -96,27 +98,19 @@ public class InitTrays {
 
     public TableRow refresh(Context context) {
 
-        TableRow initTray = new TableRow(context);
-        TextView initView = setTableColumnText(String.valueOf(initiative), backgroundResource, context);
-        TextView nameView = setTableColumnText(name, backgroundResource, context);
-        TextView acView = setTableColumnText(String.valueOf(ac), backgroundResource, context);
-        TextView savesView = setTableColumnText(getSaves(), backgroundResource, context);
+        TableRow initTray = (TableRow) LayoutInflater.from(context).inflate(R.layout.initiative_row_template, null);
 
-        initTray.addView(initView);
-        initTray.addView(nameView);
-        initTray.addView(acView);
-        initTray.addView(savesView);
+        setTableColumnText(R.id.init_text, initTray, String.valueOf(initiative), backgroundResource);
+        setTableColumnText(R.id.name_text, initTray, name, backgroundResource);
+        setTableColumnText(R.id.AC_text, initTray, String.valueOf(ac), backgroundResource);
+        setTableColumnText(R.id.saves_text, initTray, getSaves(), backgroundResource);
 
         return initTray;
     }
 
-    private TextView setTableColumnText(String text, @DrawableRes int bgResource, Context context) {
-        TextView Column = new TextView(context);
-        Column.setPadding(5, 0, 5, 0);
+    private void setTableColumnText(@IdRes int id, TableRow initTray, String text, @DrawableRes int bgResource) {
+        TextView Column = (TextView) initTray.findViewById(id);
         Column.setBackgroundResource(bgResource);
-        Column.setGravity(Gravity.START);
         Column.setText(text);
-        Column.setTextSize(24);
-        return Column;
     }
 }

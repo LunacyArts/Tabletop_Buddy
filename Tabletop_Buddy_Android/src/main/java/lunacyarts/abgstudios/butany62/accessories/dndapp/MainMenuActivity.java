@@ -9,6 +9,7 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.zip.Inflater;
 
 public class MainMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -48,6 +50,7 @@ public class MainMenuActivity extends AppCompatActivity
     //Table for the Initiative list.
     TableLayout initiativeList;
     TableRow topRow;
+    ScrollView tableScroll;
 
     //Content for the Menu items.
     LinearLayout initiativeTrackerContent;
@@ -110,21 +113,9 @@ public class MainMenuActivity extends AppCompatActivity
         initiativeTrackerContent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         //region Initializes the main ScrollView and adds it to the Content.
-        ScrollView tableScroll = new ScrollView(this); tableScroll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        tableScroll = new ScrollView(this); tableScroll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
-        //region Initializes the Table and adds it to the ScrollView.
-        initiativeList = new TableLayout(this); initiativeList.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        initiativeList.setColumnStretchable(1, true);
-
-        //region Initializes the Top Row
-        topRow = new TableRow(this);
-
-        //region Initializes the Top Row Text and adds it to the Row.
-        TextView initColumn = setTableColumnText(R.string.init_text, R.drawable.drawable_cell_shape_top); topRow.addView(initColumn);
-        TextView nameColumn = setTableColumnText(R.string.name_text, R.drawable.drawable_cell_shape_top); topRow.addView(nameColumn);
-        TextView acColumn = setTableColumnText(R.string.ac_text, R.drawable.drawable_cell_shape_top); topRow.addView(acColumn);
-        TextView savesColumn = setTableColumnText(R.string.saves_text, R.drawable.drawable_cell_shape_top); topRow.addView(savesColumn);
-        initiativeList.addView(topRow); //endregion
+        initiativeList = (TableLayout) LayoutInflater.from(this).inflate(R.layout.initiative_table_template, null);
 
         // endregion
 
@@ -574,9 +565,11 @@ public class MainMenuActivity extends AppCompatActivity
     }
 
     public void refreshTrays(){
-        initiativeList.removeAllViews();
-        initiativeList.addView(topRow);
+        initiativeList = (TableLayout) LayoutInflater.from(this).inflate(R.layout.initiative_table_template, null);
         for (final String i : initOrder.keySet())
             initiativeList.addView(initOrder.get(i).refresh(this));
+        tableScroll.removeAllViews();
+        tableScroll.addView(initiativeList);
+        initiativeList.requestLayout();
     }
 }
