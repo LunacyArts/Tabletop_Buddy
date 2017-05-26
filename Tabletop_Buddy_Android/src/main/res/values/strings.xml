@@ -17,4 +17,5 @@
     <string name="menuSendName">Send</string>
     <string name="saves_text">Saves</string>
     <string name="title_activity_comms_tester">CommsTester</string>
+    <string name="healthListSettings">HEALTHMENU</string>
 </resources>

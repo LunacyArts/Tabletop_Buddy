@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
+import android.support.annotation.MenuRes;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
@@ -80,7 +81,7 @@ public class MainMenuActivity extends AppCompatActivity
 
     List<HealthTray> healthTrays;
 
-    String menuSelected; //endregion
+    @StringRes int menuSelected; //endregion
 
     //region Tells what the program does when made.
     @Override
@@ -271,7 +272,7 @@ public class MainMenuActivity extends AppCompatActivity
         mainMenuContent = (RelativeLayout) findViewById(R.id.content_main_menu); //endregion
 
         //region Variable defined that is used to tell the Settings Menu what content to have.
-        menuSelected = "MAINMENU"; //endregion
+        menuSelected = R.string.initiativeListSettings; //endregion
 
         //region Defining the sorted list to have the highest number appear first and the lowest number appear last.
         initOrder = new TreeMap<>(Collections.reverseOrder()); //endregion
@@ -311,6 +312,9 @@ public class MainMenuActivity extends AppCompatActivity
 	//technically it only tells this activity which menu should be populated into the action bar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        @MenuRes int menuID = R.menu.main_menu;
+        if (menuSelected == R.string.initiativeListSettings)
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
@@ -320,7 +324,7 @@ public class MainMenuActivity extends AppCompatActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 		//this is also usually xml. what are you using to generate this?
-        if (menuSelected.equals("INITMENU")) {
+        if (menuSelected == R.string.initiativeListSettings) {
             menu.clear();
             menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_ADD);
             menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_REARRANGE);
@@ -333,10 +337,10 @@ public class MainMenuActivity extends AppCompatActivity
                 if (initOrder.get(i).isHeld())
                     unholdPlayers.add(MENU_LIST_HOLD, View.NO_ID, j, initOrder.get(i).getName()); j++;
             }
-        } else if (menuSelected.equals("MAINMENU")) {
+        } else if (menuSelected == R.string.mainMenuSettings) {
             menu.clear();
             menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_SETTINGS);
-        } else if (menuSelected.equals("HEALTHMENU")) {
+        } else if (menuSelected == R.string.healthListSettings) {
             menu.clear();
             menu.add(R.menu.main_menu, View.NO_ID, 0, MENU_ITEM_CHANGE_MAX);
             menu.add(R.menu.main_menu, View.NO_ID, 1, MENU_ITEM_SETTINGS);
@@ -400,21 +404,21 @@ public class MainMenuActivity extends AppCompatActivity
     private void changeToMain() {
         mainMenuContent.removeAllViews();
 
-        menuSelected = "MAINMENU";
+        menuSelected = R.string.mainMenuSettings;
     }
     private void changeToInitTracker() {
         mainMenuContent.removeAllViews();
         mainMenuContent.addView(initiativeTrackerContent);
 
 
-        menuSelected = "INITMENU";
+        menuSelected = R.string.initiativeListSettings;
     }
     private void changeToHealthTracker() {
         mainMenuContent.removeAllViews();
 
         mainMenuContent.addView(healthTrackerContent);
 
-        menuSelected = "HEALTHMENU";
+        menuSelected = R.string.healthListSettings;
     }
 
     private static void applyListener(View child, Button.OnClickListener listener) {

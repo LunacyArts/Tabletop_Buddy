@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/initiative_table"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,10 +9,11 @@
     <TableRow
         android:id="@+id/top_row"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
 
         <TextView
-            android:id="@+id/textView12"
+            android:id="@+id/init_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/drawable_cell_shape_top"
@@ -21,7 +23,7 @@
             android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/textView11"
+            android:id="@+id/name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/drawable_cell_shape_top"
@@ -31,7 +33,7 @@
             android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/textView10"
+            android:id="@+id/AC_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/drawable_cell_shape_top"
@@ -41,7 +43,7 @@
             android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/textView9"
+            android:id="@+id/saves_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/drawable_cell_shape_top"
